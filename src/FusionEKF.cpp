@@ -20,15 +20,22 @@ FusionEKF::FusionEKF() {
   R_laser_ = MatrixXd(2, 2);
   R_radar_ = MatrixXd(3, 3);
   H_laser_ = MatrixXd(2, 4);
-  Hj_ = MatrixXd(3, 4);
+  H_jacobian = MatrixXd(3, 4);
 
   //measurement covariance matrix - laser
+  /*R_laser_ << 0.0225, 0,
+        0, 0.0225;*/
+
   R_laser_ << 0.0225, 0,
-        0, 0.0225;
+              0, 0.0225;
 
   //measurement covariance matrix - radar
-  R_radar_ << 0.09, 0, 0,
+  /*R_radar_ << 0.09, 0, 0,
         0, 0.0009, 0,
+        0, 0, 0.09;*/
+
+  R_radar_ << 0.09, 0, 0,
+        0, 0.0006, 0,
         0, 0, 0.09;
 
   /**
@@ -36,10 +43,26 @@ FusionEKF::FusionEKF() {
     * Finish initializing the FusionEKF.
     * Set the process and measurement noises
   */
+
+  H_laser_ << 1, 0, 0, 0,
+              0, 1, 0, 0;
+
+	// initialize the kalman filter variables
+  ekf_.P_ = MatrixXd(4, 4);
+  ekf_.P_ << 1, 0, 0, 0,
+             0, 1, 0, 0,
+             0, 0, 1000, 0,
+             0, 0, 0, 1000;
+
+  ekf_.F_ = MatrixXd(4, 4);
+  ekf_.F_ << 1, 0, 1, 0,
+             0, 1, 0, 1,
+             0, 0, 1, 0,
+             0, 0, 0, 1;
+
   // setting measurement noises
   noise_ax = 9;
   noise_ay = 9;
-
 }
 
 /**
